@@ -1,0 +1,113 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+use {{ rootNamespace }}Http\Controllers\Controller;
+use {{ namespacedRequests }}
+use DummyServiceInterfaceNamespace;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class {{ class }} extends Controller
+{
+    /**
+     * Instantiate a new Controllers instance.
+     */
+    public function __construct()
+    {
+        $this->policyModel = {{ model }}::class;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index({{serviceInterface}} $service, Request $request)
+    {
+        $this->authorize('viewAny', {{ model }}::class);
+        
+        return $this->responseJson($service->datatable($request));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store({{ storeRequest }} $request, {{serviceInterface}} $service)
+    {
+        $this->authorize('create', {{ model }}::class);
+        
+        DB::beginTransaction();
+
+        try {
+            $service->create($request);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th->getMessage());
+
+            return $this->responseJsonMessageCrud(false, 'create', null, $th->getMessage(), 500);
+        }
+
+        DB::commit();
+
+        return $this->responseJsonMessageCrud(true, 'create');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show({{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    {
+        $this->authorize('view', ${{ modelVariable }});
+        
+        ${{ modelVariable }} = $service->show(${{ modelVariable }});
+
+        return $this->responseJsonData(${{ modelVariable }});
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    {
+        $this->authorize('update', ${{ modelVariable }});
+        
+        DB::beginTransaction();
+
+        try {
+            $service->update($request, ${{ modelVariable }});
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th->getMessage());
+
+            return $this->responseJsonMessageCrud(false, 'update', null, $th->getMessage(), 500);
+        }
+
+        DB::commit();
+
+        return $this->responseJsonMessageCrud(true, 'update');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy({{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    {
+        $this->authorize('delete', ${{ modelVariable }});
+
+        DB::beginTransaction();
+
+        try {
+            $service->delete(${{ modelVariable }});
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th->getMessage());
+
+            return $this->responseJsonMessageCrud(false, 'delete', null, $th->getMessage(), 500);
+        }
+
+        DB::commit();
+
+        return $this->responseJsonMessageCrud(true, 'delete');
+    }
+}

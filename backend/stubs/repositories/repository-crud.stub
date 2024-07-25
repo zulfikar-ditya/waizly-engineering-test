@@ -1,0 +1,90 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Interfaces\Repositories\{{ class }}Interface;
+use App\Repositories\Base\BaseRepository;
+use {{ namespacedModel }};
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class {{ class }} extends BaseRepository implements {{ class }}Interface
+{
+    /**
+     * Instantiate a new {{ class }} instance.
+     */
+    public function __construct()
+    {
+        $this->setAllowableSearch([
+            //
+        ]);
+
+        $this->setAllowableSort([
+            //
+        ]);
+
+        $this->setAllowableFilter([
+            //
+        ]);
+
+        $this->setAllowableInclude([
+            // 
+        ]);
+    }
+
+    /**
+     * Datatable query for {{ model }}.
+     */
+    public function datatable(Request $request): LengthAwarePaginator
+    {
+        return {{ model }}::query()
+            ->when($request->search, function ($query, $search) {
+                $this->getAllowableSearchQuery($query, $search);
+            })
+            ->when($request->filter && is_array($request->filter), function ($query) use ($request) {
+                $this->getAllowableFilterQuery($query, $request->filter);
+            })
+            ->orderBy($this->getSortColumn(), $this->getSortDirection())
+            ->paginate($request->per_page ?? config('app.default_paginator'));
+    }
+
+    /**
+     * Create a new {{ model }}.
+     */
+    public function create(array $data): {{ model }}
+    {
+        $data =  {{ model }}::create($data);
+
+        return $data;
+    }
+
+    /**
+     * Find a {{ model }} by id.
+     */
+    public function show(string $id): {{ model }}
+    {
+        $data =  {{ model }}::with($this->getAllowableInclude())->findOrFail($id);
+
+        return $data;
+    }
+
+    /**
+     * Update a {{ model }},
+     */
+    public function update(array $data, string $id): {{ model }}
+    {
+        $model = {{ model }}::findOrFail($id);
+        $model->update($data);
+
+        return $model;
+    }
+
+    /**
+     * Delete a {{ model }},
+     */
+    public function delete(string $id): void
+    {
+        $data = {{ model }}::findOrFail($id);
+        $data->delete();
+    }
+}

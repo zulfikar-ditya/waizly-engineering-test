@@ -1,0 +1,126 @@
+# GitHub Action for Laravel with PostgreSQL and Redis
+name: CI-PostgreSQL
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [features/*, integration/*]
+  workflow_dispatch:
+
+  workflow_run:
+    workflows:
+      [
+        "Run Tests And Deploy To Production Server",
+        "Deploy To Development Server",
+      ]
+    types:
+      - requested
+  workflow_call:
+
+jobs:
+  laravel_tests:
+    name: Laravel (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    env:
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE: postgres
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ["8.2"]
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, dom, fileinfo, pgsql
+          coverage: xdebug
+
+      # Local PostgreSQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start postgresql service
+      #   run: sudo systemctl start postgresql.service
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Change directory to backend folder
+        run: cd backend
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          # Use composer.json for key, if composer.lock is not committed.
+          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Prepare the application
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate
+
+      - name: Clear Config
+        run: php artisan config:clear
+
+      - name: Run Migration
+        run: php artisan migrate -v
+        env:
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+
+      - name: Set LARAVEL_BYPASS_ENV_CHECK
+        run: echo "LARAVEL_BYPASS_ENV_CHECK=1" >> $GITHUB_ENV
+
+      # - name: Run npm server
+      #   run: npm run dev
+
+      - name: Test with pest
+        run: vendor/bin/pest
+        env:
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+
+      - name: Run laravel pint
+        run: vendor/bin/pint

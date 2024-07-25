@@ -1,0 +1,123 @@
+<?php
+
+use App\Models\{{model}};
+use App\Repositories\{{ model }}Repository;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+it('can get datatable', function () {
+    $repository = new {{ model }}Repository();
+    $request = new Request();
+
+    $result = $repository->datatable($request);
+
+    expect($result)->toBeInstanceOf(LengthAwarePaginator::class);
+});
+
+it('can get datatable with search', function () {
+
+    {{model}}::factory()->count(10)->create();
+    {{model}}::factory()->create([
+        'name' => 'search term',
+    ]);
+
+    $repository = new {{ model }}Repository();
+    $request = new Request([
+        'search' => 'search term',
+    ]);
+
+    $result = $repository->datatable($request);
+
+    expect($result)->toBeInstanceOf(LengthAwarePaginator::class);
+    expect($result->count())->toEqual(1);
+});
+
+it('can get datatable with filter', function () {
+
+    {{model}}::factory()->count(10)->create();
+    {{model}}::factory()->count(5)->create([
+        'name' => 'search term',
+    ]);
+
+    $repository = new {{ model }}Repository();
+    $request = new Request([
+        'filter' => [
+            'name' => 'search term',
+        ],
+    ]);
+
+    $result = $repository->datatable($request);
+
+    expect($result)->toBeInstanceOf(LengthAwarePaginator::class);
+    expect($result->count())->toEqual(5);
+});
+
+it('can get datatable with per page parameter', function () {
+
+    {{model}}::factory()->count(10)->create();
+
+    $repository = new {{ model }}Repository();
+    $request = new Request([
+        'per_page' => 5
+    ]);
+
+    $result = $repository->datatable($request);
+
+    expect($result)->toBeInstanceOf(LengthAwarePaginator::class);
+    expect($result->count())->toEqual(5);
+});
+
+it('can create a {{model}}', function () {
+    $repository = new {{model}}Repository();
+    $data = {{model}}::factory()->make()->toArray();
+
+    $result = $repository->create($data);
+
+    expect($result)->toBeInstanceOf({{model}}::class);
+    expect($result->name)->toEqual($data['name']);
+
+    $this->assertDatabaseHas('{{table}}', [
+        'name' => $data['name'],
+    ]);
+});
+
+it('can get a {{model}}', function () {
+    $repository = new {{model}}Repository();
+    ${{model}} = {{model}}::factory()->create();
+
+    $result = $repository->show(${{model}}->id);
+
+    expect($result)->toBeInstanceOf({{model}}::class);
+    expect($result->name)->toEqual(${{model}}->name);
+});
+
+it('can update a {{model}}', function () {
+    $repository = new {{model}}Repository();
+    ${{model}} = {{model}}::factory()->create();
+
+    $data = [
+        'name' => 'Jane Smith',
+    ];
+
+    $result = $repository->update($data, ${{model}}->id);
+
+    expect($result)->toBeInstanceOf({{model}}::class);
+    expect($result->name)->toEqual('Jane Smith');
+
+    $this->assertDatabaseHas('{{table}}', [
+        'name' => 'Jane Smith',
+    ]);
+});
+
+it('can delete a {{model}}', function () {
+    $repository = new {{model}}Repository();
+    ${{model}} = {{model}}::factory()->create();
+
+    $repository->delete(${{model}}->id);
+
+    expect({{model}}::find(${{model}}->id))->toBeNull();
+
+    $this->assertDatabaseMissing('{{table}}', [
+        'name' => ${{model}}->name,
+    ]);
+});
