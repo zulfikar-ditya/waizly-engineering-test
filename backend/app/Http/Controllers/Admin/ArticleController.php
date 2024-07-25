@@ -1,29 +1,30 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Http\Controllers\Admin;
 
-use {{ namespacedModel }};
-use {{ rootNamespace }}Http\Controllers\Controller;
-use {{ namespacedRequests }}
-use DummyServiceInterfaceNamespace;
+use App\Http\Controllers\Controller;
+use App\Models\Article;
+use App\Http\Requests\Admin\Article\StoreArticleRequest;
+use App\Http\Requests\Admin\Article\UpdateArticleRequest;
+use \App\Interfaces\Services\ArticleServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class {{ class }} extends Controller
+class ArticleController extends Controller
 {
     /**
      * Instantiate a new Controllers instance.
      */
     public function __construct()
     {
-        //
+        // 
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index({{serviceInterface}} $service, Request $request)
+    public function index(ArticleServiceInterface $service, Request $request)
     {
         return $this->responseJson($service->datatable($request));
     }
@@ -31,7 +32,7 @@ class {{ class }} extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store({{ storeRequest }} $request, {{serviceInterface}} $service)
+    public function store(StoreArticleRequest $request, ArticleServiceInterface $service)
     {
         DB::beginTransaction();
 
@@ -52,22 +53,22 @@ class {{ class }} extends Controller
     /**
      * Display the specified resource.
      */
-    public function show({{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    public function show(Article $article, ArticleServiceInterface $service)
     {
-        ${{ modelVariable }} = $service->show(${{ modelVariable }}->id);
+        $article = $service->show($article->id);
 
-        return $this->responseJsonData(${{ modelVariable }});
+        return $this->responseJsonData($article);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    public function update(UpdateArticleRequest $request, Article $article, ArticleServiceInterface $service)
     {
         DB::beginTransaction();
 
         try {
-            $service->update($request, ${{ modelVariable }});
+            $service->update($request, $article);
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error($th->getMessage());
@@ -83,12 +84,12 @@ class {{ class }} extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy({{ model }} ${{ modelVariable }}, {{serviceInterface}} $service)
+    public function destroy(Article $article, ArticleServiceInterface $service)
     {
         DB::beginTransaction();
 
         try {
-            $service->delete(${{ modelVariable }});
+            $service->delete($article);
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error($th->getMessage());
