@@ -81,9 +81,6 @@ jobs:
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: Change directory to backend folder
-        run: cd backend
-
       - name: Cache composer dependencies
         uses: actions/cache@v3
         with:
@@ -94,33 +91,40 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
+        working-directory: ./backend
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Prepare the application
+        working-directory: ./backend
         run: |
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           php artisan key:generate
 
       - name: Clear Config
+        working-directory: ./backend
         run: php artisan config:clear
 
       - name: Run Migration
+        working-directory: ./backend
         run: php artisan migrate -v
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
 
       - name: Set LARAVEL_BYPASS_ENV_CHECK
+        working-directory: ./backend
         run: echo "LARAVEL_BYPASS_ENV_CHECK=1" >> $GITHUB_ENV
 
       # - name: Run npm server
       #   run: npm run dev
 
       - name: Test with pest
+        working-directory: ./backend
         run: vendor/bin/pest
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
 
       - name: Run laravel pint
+        working-directory: ./backend
         run: vendor/bin/pint
