@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Requests\Tests\Article\StoreArticleRequest;
-use App\Http\Requests\Tests\Article\UpdateArticleRequest;
 use App\Interfaces\Services\ArticleServiceInterface;
 use App\Models\Article;
 use App\Models\ArticleTag;

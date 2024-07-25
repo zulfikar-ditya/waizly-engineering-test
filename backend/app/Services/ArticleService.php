@@ -20,7 +20,7 @@ class ArticleService extends BaseService implements ArticleServiceInterface
      */
     public function __construct(private ArticleRepositoryInterface $repository)
     {
-        // 
+        //
     }
 
     /**

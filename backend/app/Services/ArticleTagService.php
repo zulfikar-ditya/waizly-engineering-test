@@ -17,7 +17,7 @@ class ArticleTagService extends BaseService implements ArticleTagServiceInterfac
      */
     public function __construct(private ArticleTagRepositoryInterface $repository)
     {
-        // 
+        //
     }
 
     /**

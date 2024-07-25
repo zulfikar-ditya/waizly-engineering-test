@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Http\Requests\Admin\Article\StoreArticleRequest;
 use App\Http\Requests\Admin\Article\UpdateArticleRequest;
-use \App\Interfaces\Services\ArticleServiceInterface;
+use App\Interfaces\Services\ArticleServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +18,7 @@ class ArticleController extends Controller
      */
     public function __construct()
     {
-        // 
+        //
     }
 
     /**

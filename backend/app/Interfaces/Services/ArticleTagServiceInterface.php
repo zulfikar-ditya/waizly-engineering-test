@@ -19,7 +19,7 @@ interface ArticleTagServiceInterface extends BaseServiceInterface
      * Create a new data ArticleTag.
      */
     public function create(FormRequest $request): void;
-    
+
     /**
      * Find a single data ArticleTag from id.
      */

@@ -28,7 +28,7 @@ class ArticleTagRepository extends BaseRepository implements ArticleTagRepositor
         ]);
 
         $this->setAllowableInclude([
-            // 
+            //
         ]);
     }
 

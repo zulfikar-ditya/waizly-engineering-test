@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\Article;
 use App\Support\Str;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class ArticleObserver
 {

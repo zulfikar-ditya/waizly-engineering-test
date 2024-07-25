@@ -19,7 +19,7 @@ interface ArticleServiceInterface extends BaseServiceInterface
      * Create a new data Article.
      */
     public function create(FormRequest $request): void;
-    
+
     /**
      * Find a single data Article from id.
      */

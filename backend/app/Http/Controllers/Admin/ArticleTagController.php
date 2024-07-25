@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ArticleTag;
 use App\Http\Requests\Admin\ArticleTag\StoreArticleTagRequest;
 use App\Http\Requests\Admin\ArticleTag\UpdateArticleTagRequest;
-use \App\Interfaces\Services\ArticleTagServiceInterface;
+use App\Interfaces\Services\ArticleTagServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +18,7 @@ class ArticleTagController extends Controller
      */
     public function __construct()
     {
-        // 
+        //
     }
 
     /**
