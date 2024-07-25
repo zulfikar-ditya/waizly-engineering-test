@@ -72,6 +72,16 @@ class ArticleRepository extends BaseRepository implements ArticleRepositoryInter
     }
 
     /**
+     * Find a Article by slug.
+     */
+    public function findBySlug(string $slug): Article
+    {
+        $data =  Article::with($this->getAllowableInclude())->where('slug', $slug)->firstOrFail();
+
+        return $data;
+    }
+
+    /**
      * Update a Article,
      */
     public function update(array $data, string $id): Article

@@ -25,6 +25,11 @@ interface ArticleRepositoryInterface extends BaseRepositoryInterface
     public function show(string $id): Article;
 
     /**
+     * Find a Article by slug.
+     */
+    public function findBySlug(string $slug): Article;
+
+    /**
      * Update a Article
      */
     public function update(array $data, string $id): Article;

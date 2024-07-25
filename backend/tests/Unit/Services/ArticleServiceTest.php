@@ -107,6 +107,15 @@ it('can get a Article', function () {
     expect($result->id)->toEqual($fake->id);
 });
 
+it('can get a Article by slug', function () {
+    $fake = Article::factory()->create();
+
+    $service = app(ArticleServiceInterface::class);
+    $result = $service->findBySlug($fake->slug);
+
+    expect($result->slug)->toEqual($fake->slug);
+});
+
 it('can update a Article', function () {
     $Article = Article::factory()->create();
 

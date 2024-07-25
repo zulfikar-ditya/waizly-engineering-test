@@ -109,6 +109,17 @@ it('can get a Article', function () {
     expect($result->title)->toEqual($Article->title);
 });
 
+it('can find a Article by slug', function () {
+    $repository = new ArticleRepository();
+    $article = Article::factory()->create();
+    $slug = $article->slug;
+
+    $result = $repository->findBySlug($slug);
+
+    expect($result)->toBeInstanceOf(Article::class);
+    expect($result->slug)->toEqual($slug);
+});
+
 it('can update a Article', function () {
     $repository = new ArticleRepository();
     $Article = Article::factory()->create();

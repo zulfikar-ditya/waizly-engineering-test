@@ -26,6 +26,11 @@ interface ArticleServiceInterface extends BaseServiceInterface
     public function show(string $id): Article;
 
     /**
+     * Find a single data Article from slug.
+     */
+    public function findBySlug(string $slug): Article;
+
+    /**
      * Update a data Article.
      */
     public function update(FormRequest $request, Article $Article): void;

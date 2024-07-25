@@ -55,6 +55,14 @@ class ArticleService extends BaseService implements ArticleServiceInterface
     }
 
     /**
+     * Find a single data Article from slug.
+     */
+    public function findBySlug(string $slug): Article
+    {
+        return $this->repository->findBySlug($slug);
+    }
+
+    /**
      * Update a data Article.
      */
     public function update(FormRequest $request, Article $Article): void
