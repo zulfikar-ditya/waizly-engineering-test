@@ -1,12 +1,12 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class {{ class }} extends Model
+class ArticleTag extends Model
 {
     use HasFactory;
     use HasUuids;
@@ -17,7 +17,7 @@ class {{ class }} extends Model
      * @var array
      */
     protected $fillable = [
-        //
+        'name'
     ];
 
     /**

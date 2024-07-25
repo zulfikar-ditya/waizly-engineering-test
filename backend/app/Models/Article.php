@@ -1,12 +1,16 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Models;
 
+use App\Observers\ArticleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class {{ class }} extends Model
+#[ObservedBy(ArticleObserver::class)]
+class Article extends Model
 {
     use HasFactory;
     use HasUuids;
@@ -17,7 +21,12 @@ class {{ class }} extends Model
      * @var array
      */
     protected $fillable = [
-        //
+        'title',
+        'content',
+        // 'slug',
+        'image',
+        'is_published',
+        // 'published_at',
     ];
 
     /**
@@ -29,6 +38,8 @@ class {{ class }} extends Model
     {
         return [
             'id' => 'string',
+            'is_published' => 'boolean',
+            'published_at' => 'datetime',
         ];
     }
 
@@ -45,4 +56,14 @@ class {{ class }} extends Model
      * @var bool
      */
     public $incrementing = false;
+
+    /**
+     * Get all of the tags for the Article
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function articleTags(): BelongsToMany
+    {
+        return $this->belongsToMany(ArticleTag::class, 'article_has_tag', 'article_id', 'article_tag_id');
+    }
 }

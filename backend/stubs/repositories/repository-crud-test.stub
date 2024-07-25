@@ -67,6 +67,21 @@ it('can get datatable with per page parameter', function () {
     expect($result->count())->toEqual(5);
 });
 
+it('can get datatable with sort', function () {
+
+    {{model}}::factory()->count(10)->create();
+
+    $repository = new {{ model }}Repository();
+    $request = new Request([
+        'sort' => '-name'
+    ]);
+
+    $result = $repository->datatable($request);
+
+    expect($result)->toBeInstanceOf(LengthAwarePaginator::class);
+    expect($result->count())->toEqual(10);
+});
+
 it('can create a {{model}}', function () {
     $repository = new {{model}}Repository();
     $data = {{model}}::factory()->make()->toArray();

@@ -184,9 +184,15 @@ class BaseRepository implements BaseRepositoryInterface
             collect($filter)->each(function ($value, $filter) use ($query) {
                 [$lastIndex, $concatenated, $filterParts] = $this->getFilterParts($filter);
 
-                // if the value is null, skip the filter
+                // if the value is null
                 if ($value === null) {
-                    return;
+                    if (count($filterParts) > 1) {
+                        $query->orWhereHas($concatenated, function (Builder $query) use ($lastIndex, $value) {
+                            $query->whereNull($lastIndex);
+                        });
+                    } else {
+                        $query->whereNull($filter);
+                    }
                 }
 
                 // of check the key is in allowable filter
@@ -196,9 +202,21 @@ class BaseRepository implements BaseRepositoryInterface
 
                 if (count($filterParts) > 1) {
                     $query->orWhereHas($concatenated, function (Builder $query) use ($lastIndex, $value) {
-                        $query->where($lastIndex, "%{$value}%");
+
+                        if (is_array($value)) {
+                            $query->whereIn($lastIndex, $value);
+                            return;
+                        }
+
+                        $query->where($lastIndex, $value);
                     });
                 } else {
+
+                    if (is_array($value)) {
+                        $query->whereIn($filter, $value);
+                        return;
+                    }
+
                     $query->where($filter, $value);
                 }
             });
